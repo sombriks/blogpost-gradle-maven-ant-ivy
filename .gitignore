@@ -1,3 +1,6 @@
 buid
 bin
 output
+target
+.gradle
+build
