@@ -1,0 +1,25 @@
+<project name="Ant v1" default="build">
+  
+  <target name="build" depends="compile">
+    <jar jarfile="output/HelloOrdinary.jar" basedir="bin">
+      <manifest>
+        <attribute name="Main-Class" value="AppMain"/>
+      </manifest>
+    </jar>
+  </target>
+  
+  <target name="compile" depends="init">
+    <javac srcdir="src" destdir="bin"/>
+  </target>
+  
+  <target name="init">
+    <mkdir dir="bin"/>
+    <mkdir dir="output"/>
+  </target>
+  
+  <target name="clean">
+    <delete dir="bin"/>
+    <delete dir="output"/>
+  </target>
+  
+</project>
