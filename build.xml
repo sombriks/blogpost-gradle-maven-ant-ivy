@@ -1,25 +1,37 @@
-<project name="Ant v1" default="build">
-  
-  <target name="build" depends="compile">
+<project name="Ant v1" default="build">  
+  <target name="build" depends="test,compile">
     <jar jarfile="output/HelloOrdinary.jar" basedir="bin">
       <manifest>
         <attribute name="Main-Class" value="AppMain"/>
       </manifest>
     </jar>
-  </target>
-  
+  </target>  
   <target name="compile" depends="init">
     <javac srcdir="src" destdir="bin"/>
-  </target>
-  
+  </target>  
   <target name="init">
     <mkdir dir="bin"/>
     <mkdir dir="output"/>
-  </target>
-  
+  </target>  
   <target name="clean">
     <delete dir="bin"/>
     <delete dir="output"/>
-  </target>
-  
+  </target>  
+  <target name="test-compile" depends="init">
+    <javac srcdir="test" destdir="bin"/>
+  </target>  
+  <target name="test" depends="compile,test-compile">
+    <junit printsummary="yes" haltonfailure="no">
+      <formatter type="xml"/>
+      <classpath>
+        <pathelement path="bin"/>
+        <pathelement path="lib"/>
+      </classpath>
+      <batchtest todir="output">
+        <fileset dir="test">
+          <include name="**/*Test*.java"/>
+        </fileset>
+      </batchtest>
+    </junit>
+  </target>  
 </project>
