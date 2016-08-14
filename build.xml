@@ -1,37 +1,64 @@
-<project name="Ant v1" default="build">  
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:ivy="antlib:org.apache.ivy.ant" name="Ant v1" default="build">
+  <!-- BEGIN ivy self download/resolver -->
+  <property name="ivy.install.version" value="2.4.0" />
+  <condition property="ivy.home" value="${env.IVY_HOME}">
+    <isset property="env.IVY_HOME" />
+  </condition>
+  <property name="ivy.home" value="${user.home}/.ant" />
+  <property name="ivy.jar.dir" value="${ivy.home}/lib" />
+  <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" />
+  <target name="download-ivy" unless="offline">
+    <mkdir dir="${ivy.jar.dir}" />
+    <!-- download Ivy from web site so that it can be used even without any special installation -->
+    <get src="https://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar" dest="${ivy.jar.file}" usetimestamp="true" />
+  </target>
+  <target name="init-ivy" depends="download-ivy">
+    <!-- try to load ivy here from ivy home, in case the user has not already dropped
+              it into ant's lib dir (note that the latter copy will always take precedence).
+              We will not fail as long as local lib dir exists (it may be empty) and
+              ivy is in at least one of ant's lib dir or the local lib dir. -->
+    <path id="ivy.lib.path">
+      <fileset dir="${ivy.jar.dir}" includes="*.jar" />
+    </path>
+    <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path" />
+  </target>
+  <!-- END ivy self download/resolver -->
+  <target name="init" depends="init-ivy">
+    <mkdir dir="bin" />
+    <mkdir dir="output" />
+  </target>
   <target name="build" depends="test,compile">
     <jar jarfile="output/HelloOrdinary.jar" basedir="bin">
       <manifest>
-        <attribute name="Main-Class" value="AppMain"/>
+        <attribute name="Main-Class" value="AppMain" />
       </manifest>
     </jar>
-  </target>  
+  </target>
   <target name="compile" depends="init">
-    <javac srcdir="src/main/java" destdir="bin"/>
-  </target>  
-  <target name="init">
-    <mkdir dir="bin"/>
-    <mkdir dir="output"/>
-  </target>  
+    <javac srcdir="src/main/java" destdir="bin" />
+  </target>
   <target name="clean">
-    <delete dir="bin"/>
-    <delete dir="output"/>
-  </target>  
+    <delete dir="bin" />
+    <delete dir="output" />
+  </target>
   <target name="test-compile" depends="init">
-    <javac srcdir="src/test/java" destdir="bin"/>
-  </target>  
-  <target name="test" depends="compile,test-compile">
+    <javac srcdir="src/test/java" destdir="bin" />
+  </target>
+  <target name="test" depends="compile,test-compile">    
+    <!-- baixa a dependência e seta um id para o caminho -->
+    <ivy:cachepath pathid="lib.path.id" organisation="junit" module="junit" revision="4.12" inline="true"/>
     <junit printsummary="yes" haltonfailure="no">
-      <formatter type="xml"/>
+      <formatter type="xml" />
       <classpath>
-        <pathelement path="bin"/>
-        <pathelement path="lib"/>
+        <path refid="lib.path.id"/>
+        <pathelement path="bin" />
       </classpath>
       <batchtest todir="output">
         <fileset dir="src/test/java">
-          <include name="**/*Test*.java"/>
+          <include name="**/*Test*.java" />
         </fileset>
       </batchtest>
     </junit>
-  </target>  
+  </target>
 </project>
